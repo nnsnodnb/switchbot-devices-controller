@@ -14,9 +14,9 @@ from ..models import SwitchBotDevice
 @dataclass(repr=False, frozen=True)
 class SwitchBot:
     base_url: str = field(default="https://api.switch-bot.com", init=False, repr=False)
-    version: str = field(default="v1.1", init=False)
     token: str = field(repr=False)
     client_secret: str = field(repr=False)
+    version: str = field(default="v1.1")
 
     def _make_endpoint_url(self, path: str) -> str:
         return "/".join([self.base_url, self.version, path])
