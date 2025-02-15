@@ -1,21 +1,15 @@
-import json
-import urllib.parse
-import urllib.request
 from datetime import datetime
+
+import requests
 
 from ..models import SunMoonRiseSet
 
 BASE_URL = "https://labs.bitmeister.jp"
 
 
-class SunMoonRiseSetAPIException(Exception):
-    pass
-
-
 def get_sun_moon_rise_set(date: datetime, latitude: float, longitude: float) -> SunMoonRiseSet:
-    req_endpoint = f"{BASE_URL}/ohakon/json"
-
-    query = {
+    url = f"{BASE_URL}/ohakon/json"
+    params = {
         "mode": "sun_moon_rise_set",
         "year": date.year,
         "month": date.month,
@@ -23,19 +17,14 @@ def get_sun_moon_rise_set(date: datetime, latitude: float, longitude: float) -> 
         "lat": latitude,
         "lng": longitude,
     }
-    query_str = urllib.parse.urlencode(query)
-    url = f"{req_endpoint}?{query_str}"
     headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
     }
 
-    req = urllib.request.Request(url=url, headers=headers)
+    res = requests.get(url=url, params=params, headers=headers)
+    res.raise_for_status()
 
-    with urllib.request.urlopen(req) as res:
-        if res.status != 200:
-            raise SunMoonRiseSetAPIException(f"Failed to get sun moon rise set. status={res.status}")
-
-        data = json.loads(res.read())
+    data = res.json()
 
     return SunMoonRiseSet.from_dict(data)

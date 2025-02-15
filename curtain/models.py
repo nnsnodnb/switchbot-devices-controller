@@ -66,3 +66,32 @@ class SunMoonRiseSet:
             rise_and_set=rise_and_set,
             version=version,
         )
+
+
+@dataclass(frozen=True)
+class SwitchBotDevice:
+    device_id: str
+    device_name: str
+    device_type: str
+    enable_cloud_service: bool
+    hub_device_id: str
+    curtain_devices_ids: list[str] | None
+    calibrate: bool | None
+    group: bool | None
+    master: bool | None
+    open_direction: str | None
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Self:
+        return cls(
+            device_id=data["deviceId"],
+            device_name=data["deviceName"],
+            device_type=data["deviceType"],
+            enable_cloud_service=data["enableCloudService"],
+            hub_device_id=data["hubDeviceId"],
+            curtain_devices_ids=data.get("curtainDevicesIds"),
+            calibrate=data.get("calibrate"),
+            group=data.get("group"),
+            master=data.get("master"),
+            open_direction=data.get("openDirection"),
+        )
