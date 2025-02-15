@@ -95,3 +95,7 @@ class SwitchBotDevice:
             master=data.get("master"),
             open_direction=data.get("openDirection"),
         )
+
+    @property
+    def is_curtain(self):
+        return self.device_type in ("Curtain", "Curtain3")

@@ -57,7 +57,7 @@ class SwitchBot:
         return [SwitchBotDevice.from_dict(device) for device in data["body"]["deviceList"]]
 
     def close_curtain(self, device: SwitchBotDevice) -> dict[str, Any]:
-        if device.device_type not in ("Curtain", "Curtain3"):
+        if not device.is_curtain:
             raise ValueError("This device is not a curtain.")
 
         url = self._make_endpoint_url(f"devices/{device.device_id}/commands")

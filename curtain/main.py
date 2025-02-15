@@ -1,26 +1,30 @@
 import os
+from datetime import datetime
 
-# from curtain.api.bitmeister import get_sun_moon_rise_set
+from .api.bitmeister import get_sun_moon_rise_set
 from .api.switchbot import SwitchBot
+from .timezone import ASIA_TOKYO
 
-# from curtain.api.switchbot import SwitchBot
 
-# from curtain.timezone import ASIA_TOKYO
+def main() -> None:
+    # default location is Tokyo station
+    latitude = float(os.getenv("LATITUDE", "35.68137636985265"))
+    longitude = float(os.getenv("LONGITUDE", "139.76703435645047"))
 
-# default location is Tokyo station
-LATITUDE = float(os.getenv("LATITUDE", "35.68137636985265"))
-LONGITUDE = float(os.getenv("LONGITUDE", "139.76703435645047"))
-SWITCHBOT_API_TOKEN = os.environ["SWITCHBOT_API_TOKEN"]
-SWITCHBOT_API_CLIENT_SECRET = os.environ["SWITCHBOT_API_CLIENT_SECRET"]
+    now = datetime.now(tz=ASIA_TOKYO)
+    sun_moon_rise_set = get_sun_moon_rise_set(date=now, latitude=latitude, longitude=longitude)
+    print(sun_moon_rise_set)
+
+
+def lambda_handler(event, context) -> None:
+   token = os.environ["SWITCHBOT_API_TOKEN"]
+   client_secret = os.environ["SWITCHBOT_API_CLIENT_SECRET"]
+
+   switch_bot = SwitchBot(token=token, client_secret=client_secret)
+   devices = filter(lambda device: device.is_curtain, switch_bot.get_devices())
+   print(list(devices))
 
 
 if __name__ == "__main__":
-    # sun_moon_rise_set = get_sun_moon_rise_set(datetime.now(tz=ASIA_TOKYO), LATITUDE, LONGITUDE)
-    # print(sun_moon_rise_set)
-
-    switch_bot = SwitchBot(
-        token=SWITCHBOT_API_TOKEN,
-        client_secret=SWITCHBOT_API_CLIENT_SECRET,
-    )
-    devices = switch_bot.get_devices()
-    print(devices)
+    main()
+    lambda_handler(None, None)
