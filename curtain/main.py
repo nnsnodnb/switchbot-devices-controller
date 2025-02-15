@@ -1,9 +1,9 @@
 import os
 from datetime import datetime
 
-from .api.bitmeister import get_sun_moon_rise_set
-from .api.switchbot import SwitchBot
-from .timezone import ASIA_TOKYO
+from curtain.api.bitmeister import get_sun_moon_rise_set
+from curtain.api.switchbot import SwitchBot
+from curtain.timezone import ASIA_TOKYO
 
 
 def main() -> None:
