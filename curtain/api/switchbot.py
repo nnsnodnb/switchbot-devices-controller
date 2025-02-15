@@ -4,15 +4,11 @@ import hmac
 import time
 import uuid
 from dataclasses import dataclass, field
-from enum import StrEnum
+from typing import Any
 
 import requests
 
 from ..models import SwitchBotDevice
-
-
-class SwitchBotApiEndpoint(StrEnum):
-    DEVICES = "devices"
 
 
 @dataclass(repr=False, frozen=True)
@@ -22,8 +18,8 @@ class SwitchBot:
     token: str = field(repr=False)
     client_secret: str = field(repr=False)
 
-    def _make_endpoint_url(self, endpoint: SwitchBotApiEndpoint) -> str:
-        return "/".join([self.base_url, self.version, endpoint.value])
+    def _make_endpoint_url(self, path: str) -> str:
+        return "/".join([self.base_url, self.version, path])
 
     def _generate_signature(self, nonce: uuid.UUID, timestamp: int) -> str:
         msg = f"{self.token}{timestamp}{nonce}".encode()
@@ -50,7 +46,7 @@ class SwitchBot:
         return headers
 
     def get_devices(self) -> list[SwitchBotDevice]:
-        url = self._make_endpoint_url(SwitchBotApiEndpoint.DEVICES)
+        url = self._make_endpoint_url("devices")
         headers = self._get_headers()
 
         res = requests.get(url=url, headers=headers)
@@ -59,3 +55,20 @@ class SwitchBot:
         data = res.json()
 
         return [SwitchBotDevice.from_dict(device) for device in data["body"]["deviceList"]]
+
+    def close_curtain(self, device: SwitchBotDevice) -> dict[str, Any]:
+        if device.device_type not in ("Curtain", "Curtain3"):
+            raise ValueError("This device is not a curtain.")
+
+        url = self._make_endpoint_url(f"devices/{device.device_id}/commands")
+        payload = {
+            "command_type": "command",
+            "command": "setPosition",
+            "parameter": "1,ff,100",
+        }
+        headers = self._get_headers()
+
+        res = requests.post(url=url, json=payload, headers=headers)
+        res.raise_for_status()
+
+        return res.json()

@@ -2,6 +2,7 @@ import os
 
 # from curtain.api.bitmeister import get_sun_moon_rise_set
 from .api.switchbot import SwitchBot
+
 # from curtain.api.switchbot import SwitchBot
 
 # from curtain.timezone import ASIA_TOKYO
