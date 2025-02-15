@@ -1,0 +1,25 @@
+{
+  "date": {
+    "day": "15",
+    "month": "2",
+    "year": "2025"
+  },
+  "location": {
+    "coordinate": {
+      "lat": "35.68137636985265",
+      "lng": "139.76703435645047"
+    }
+  },
+  "moon_age": 16.57,
+  "rise_and_set": {
+    "moonrise": 19.967,
+    "moonrise_hm": "19:58",
+    "moonset": 7.725,
+    "moonset_hm": "7:43",
+    "sunrise": 6.465,
+    "sunrise_hm": "6:27",
+    "sunset": 17.376,
+    "sunset_hm": "17:23"
+  },
+  "version": "2.2"
+}
