@@ -1,8 +1,8 @@
 import os
 from datetime import datetime
 
-from curtain.api.bitmeister import get_sun_moon_rise_set
-from curtain.api.switchbot import SwitchBot
+from api.bitmeister import get_sun_moon_rise_set
+from api.switchbot import SwitchBot
 from curtain.timezone import ASIA_TOKYO
 
 
@@ -17,12 +17,12 @@ def main() -> None:
 
 
 def lambda_handler(event, context) -> None:
-   token = os.environ["SWITCHBOT_API_TOKEN"]
-   client_secret = os.environ["SWITCHBOT_API_CLIENT_SECRET"]
+    token = os.environ["SWITCHBOT_API_TOKEN"]
+    client_secret = os.environ["SWITCHBOT_API_CLIENT_SECRET"]
 
-   switch_bot = SwitchBot(token=token, client_secret=client_secret)
-   devices = filter(lambda device: device.is_curtain, switch_bot.get_devices())
-   print(list(devices))
+    switch_bot = SwitchBot(token=token, client_secret=client_secret)
+    devices = filter(lambda device: device.is_curtain, switch_bot.get_devices())
+    print(list(devices))
 
 
 if __name__ == "__main__":
