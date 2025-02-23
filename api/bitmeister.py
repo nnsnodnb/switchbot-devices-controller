@@ -2,7 +2,7 @@ from datetime import datetime
 
 import requests
 
-from ..models import SunMoonRiseSet
+from models import SunMoonRiseSet
 
 BASE_URL = "https://labs.bitmeister.jp"
 
@@ -27,4 +27,4 @@ def get_sun_moon_rise_set(date: datetime, latitude: float, longitude: float) -> 
 
     data = res.json()
 
-    return SunMoonRiseSet.from_dict(data)
+    return SunMoonRiseSet.from_dict(data=data, now=date)

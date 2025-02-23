@@ -8,7 +8,7 @@ from typing import Any
 
 import requests
 
-from ..models import SwitchBotDevice
+from models import SwitchBotDevice
 
 
 @dataclass(repr=False, frozen=True)

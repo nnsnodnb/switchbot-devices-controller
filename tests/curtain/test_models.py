@@ -1,7 +1,9 @@
 import json
+from datetime import datetime
 from pathlib import Path
 
-from curtain.models import SunMoonRiseSet
+from curtain.timezone import ASIA_TOKYO
+from models import SunMoonRiseSet
 
 
 class TestSunMoonRiseSet:
@@ -9,7 +11,7 @@ class TestSunMoonRiseSet:
         json_path = Path(__file__).parent / "sun_moon_rise_set.json"
         data = json.loads(json_path.read_text())
 
-        actual = SunMoonRiseSet.from_dict(data=data)
+        actual = SunMoonRiseSet.from_dict(data=data, now=datetime.now(tz=ASIA_TOKYO))
 
         assert actual.date.year == 2025
         assert actual.date.month == 2

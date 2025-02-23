@@ -1,5 +1,8 @@
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Any, Self
+
+from curtain.timezone import ASIA_TOKYO
 
 
 @dataclass
@@ -35,12 +38,30 @@ class Location:
 class RiseAndSet:
     moonrise: float
     moonrise_hm: str
+    moonrise_datetime: datetime = field(repr=False)
     moonset: float
     moonset_hm: str
+    moonset_datetime: datetime = field(repr=False)
     sunrise: float
     sunrise_hm: str
+    sunrise_datetime: datetime = field(repr=False)
     sunset: float
     sunset_hm: str
+    sunset_datetime: datetime = field(repr=False)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any], now: datetime) -> Self:
+        format_ = "%H:%M"
+        moonrise_time = datetime.strptime(data["moonrise_hm"], format_).time()
+        moonset_time = datetime.strptime(data["moonset_hm"], format_).time()
+        sunrise_time = datetime.strptime(data["sunrise_hm"], format_).time()
+        sunset_time = datetime.strptime(data["sunset_hm"], format_).time()
+        data["moonrise_datetime"] = datetime.combine(now.date(), moonrise_time, tzinfo=ASIA_TOKYO)
+        data["moonset_datetime"] = datetime.combine(now.date(), moonset_time, tzinfo=ASIA_TOKYO)
+        data["sunrise_datetime"] = datetime.combine(now.date(), sunrise_time, tzinfo=ASIA_TOKYO)
+        data["sunset_datetime"] = datetime.combine(now.date(), sunset_time, tzinfo=ASIA_TOKYO)
+
+        return cls(**data)
 
 
 @dataclass(frozen=True)
@@ -52,11 +73,11 @@ class SunMoonRiseSet:
     version: str
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> Self:
+    def from_dict(cls, data: dict[str, Any], now: datetime) -> Self:
         date = Date(**data["date"])
         location = Location(coordinate=Coordinate(**data["location"]["coordinate"]))
         moon_age = float(data["moon_age"])
-        rise_and_set = RiseAndSet(**data["rise_and_set"])
+        rise_and_set = RiseAndSet.from_dict(data=data["rise_and_set"], now=now)
         version = data["version"]
 
         return cls(

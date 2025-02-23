@@ -27,4 +27,4 @@ def lambda_handler(event, context) -> None:
 
 if __name__ == "__main__":
     main()
-    lambda_handler(None, None)
+    # lambda_handler(None, None)
