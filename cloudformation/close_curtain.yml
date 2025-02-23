@@ -1,0 +1,109 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Close Curtain & Curtain3 of SwitchBot in my house.
+
+Parameters:
+  IsCreateLogGroup:
+    Type: String
+    AllowedValues:
+    - 'true'
+    - 'false'
+    Default: 'true'
+    Description: Whether to create a log group for the Lambda function.
+  SwitchBotApiToken:
+    Type: String
+    Description: The API token of SwitchBot API.
+    NoEcho: 'true'
+  SwitchBotApiClientSecret:
+    Type: String
+    Description: The client secret of SwitchBot API.
+    NoEcho: 'true'
+  CloseCurtainFunctionZipFileS3Key:
+    Type: String
+    Description: The S3 key of the ZIP file of using for CloseCurtainFunction.
+  CloseCurtainEventScheduleExpression:
+    Type: String
+    Description: The schedule expression of the CloseCurtainEvent.
+
+Conditions:
+  IsCreateLogGroup: !Equals [!Ref 'IsCreateLogGroup', 'true']
+
+Resources:
+  CloseCurtainResourceBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - BucketKeyEnabled: 'true'
+          ServerSideEncryptionByDefault:
+            SSEAlgorithm: AES256
+      BucketName: !Sub 'switchbot-close-curtain-resource-${AWS::Region}'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: 'true'
+        BlockPublicPolicy: 'true'
+        IgnorePublicAcls: 'true'
+        RestrictPublicBuckets: 'true'
+
+  CloseCurtainFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Architectures:
+      - arm64
+      Code:
+        S3Bucket: !Ref 'CloseCurtainResourceBucket'
+        S3Key: !Ref 'CloseCurtainFunctionZipFileS3Key'
+      Environment:
+        Variables:
+          SWITCHBOT_API_TOKEN: !Ref 'SwitchBotApiToken'
+          SWITCHBOT_API_CLIENT_SECRET: !Ref 'SwitchBotApiClientSecret'
+      EphemeralStorage:
+        Size: 512
+      FunctionName: !Sub 'switchbot-close-curtain-function-${AWS::Region}'
+      Handler: 'close_curtain.lambda_function'
+      MemorySize: 128
+      PackageType: 'Zip'
+      RecursiveLoop: 'Terminate'
+      Role: !GetAtt 'CloseCurtainRole.Arn'
+      Runtime: 'python3.13'
+      Timeout: 15
+
+  CloseCurtainRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+          Action: sts:AssumeRole
+      Policies: !If
+      - 'IsCreateLogGroup'
+      - - PolicyName: CloseCurtainPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Effect: Allow
+              Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              Resource: '*'
+      - !Ref 'AWS::NoValue'
+
+  CloseCurtainEvent:
+    Type: AWS::Events::Rule
+    Properties:
+      # ScheduleExpression: 'cron(23 17 * * ? *)'  # 2:23 JST
+      ScheduleExpression: !Ref 'CloseCurtainEventScheduleExpression'
+      State: 'ENABLED'
+      Targets:
+      - Arn: !GetAtt 'CloseCurtainFunction.Arn'
+        Id: !Ref 'CloseCurtainFunction'
+
+  CloseCurtainPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt 'CloseCurtainFunction.Arn'
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt 'CloseCurtainEvent.Arn'
