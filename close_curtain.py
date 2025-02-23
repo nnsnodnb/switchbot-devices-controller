@@ -15,6 +15,13 @@ def main() -> None:
     sun_moon_rise_set = get_sun_moon_rise_set(date=now, latitude=latitude, longitude=longitude)
     print(sun_moon_rise_set)
 
+    # 1. Zipped source folder
+    # 2. Checksum zip file
+    # 3. Exist check S3 bucket
+    # 4. Upload to S3 bucket if not exist
+    # 5. Exist check stack of CloudFormation
+    # 6. Create CloudFormationStack if not exist and update if exist
+
 
 def lambda_handler(event, context) -> None:
     token = os.environ["SWITCHBOT_API_TOKEN"]
