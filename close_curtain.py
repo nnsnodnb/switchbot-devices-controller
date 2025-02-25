@@ -1,9 +1,14 @@
 import os
 from datetime import datetime
+from pathlib import Path
 
 from api.bitmeister import get_sun_moon_rise_set
 from api.switchbot import SwitchBot
 from curtain.timezone import ASIA_TOKYO
+from aws.s3 import upload_template
+
+
+S3_BUCKET_NAME = os.environ["S3_BUCKET_NAME"]
 
 
 def main() -> None:
@@ -19,6 +24,9 @@ def main() -> None:
     # 2. Checksum zip file
     # 3. Exist check S3 bucket
     # 4. Upload to S3 bucket if not exist
+    template_path = Path(__file__).parent / "cloudformation" / "close_curtain.yml"
+    template_s3_key = upload_template(template_path=template_path, bucket_name=S3_BUCKET_NAME)
+    print(f"{template_s3_key=}")
     # 5. Exist check stack of CloudFormation
     # 6. Create CloudFormationStack if not exist and update if exist
 
