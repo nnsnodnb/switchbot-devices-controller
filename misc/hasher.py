@@ -7,4 +7,4 @@ def get_digest(data: bytes) -> bytes:
 
 
 def get_b64encoded_digest(data: bytes) -> str:
-    return base64.b64encode(get_digest(data)).decode()
+    return base64.urlsafe_b64encode(get_digest(data)).decode()

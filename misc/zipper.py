@@ -2,7 +2,6 @@ import zipfile
 from collections.abc import Generator
 from pathlib import Path
 
-
 IGNORE_PATHS = [
     ".pytest_cache",
     ".ruff_cache",
@@ -17,9 +16,9 @@ IGNORE_PATHS = [
 ]
 
 
-def _walk(src: Path) -> Generator[Path, None, None]:
+def _walk(src: Path) -> Generator[Path]:
     for item in src.iterdir():
-        if item.name in IGNORE_PATHS:
+        if item.name in IGNORE_PATHS or item.name.endswith(".zip"):
             continue
 
         if item.is_dir():
@@ -28,7 +27,7 @@ def _walk(src: Path) -> Generator[Path, None, None]:
             yield item
 
 
-def zipped(src: Path, dest: Path) -> Path:
+def zip_folder(src: Path, dest: Path) -> Path:
     dest.mkdir(exist_ok=True)
     dist = dest / "switchbot-devices-controller.zip"
     if dist.exists():
