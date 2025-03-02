@@ -46,7 +46,7 @@ Resources:
       EphemeralStorage:
         Size: 512
       FunctionName: !Sub 'switchbot-close-curtain-function-${AWS::Region}'
-      Handler: 'close_curtain.lambda_function'
+      Handler: 'close_curtain.lambda_handler'
       MemorySize: 128
       PackageType: 'Zip'
       RecursiveLoop: 'Terminate'

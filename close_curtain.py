@@ -13,8 +13,8 @@ from models import CloudFormationParameter, SunMoonRiseSet
 
 BASE_DIR = Path(__file__).parent
 # Required environment variables
-CFN_STACK_NAME = os.environ.get("CFN_STACK_NAME", "CloseCurtainStack")
-S3_BUCKET_NAME = os.environ["S3_BUCKET_NAME"]
+CFN_STACK_NAME = ""
+S3_BUCKET_NAME = ""
 SWITCHBOT_API_TOKEN = os.environ["SWITCHBOT_API_TOKEN"]
 SWITCHBOT_API_CLIENT_SECRET = os.environ["SWITCHBOT_API_CLIENT_SECRET"]
 # Optional environment variables
@@ -101,6 +101,10 @@ def _create_close_curtain_stack(source_code_s3_key: str, template_s3_key: str) -
 
 
 def main() -> None:
+    global CFN_STACK_NAME, S3_BUCKET_NAME
+    CFN_STACK_NAME = os.environ.get("CFN_STACK_NAME", "CloseCurtainStack")
+    S3_BUCKET_NAME = os.environ["S3_BUCKET_NAME"]
+
     # Upload source to S3 bucket
     source_code_s3_key, code_uploaded = _zipped_folder_and_upload_to_s3()
     # Upload template to S3 bucket
@@ -127,6 +131,7 @@ def lambda_handler(event, context) -> None:
 
     for device in devices:
         switch_bot.close_curtain(device=device)
+        print(f"Closed {device.device_name}.")
 
 
 if __name__ == "__main__":

@@ -79,8 +79,8 @@ class SwitchBot:
         res = http.request(
             method="POST",
             url=url,
+            body=json.dumps(payload),
             headers=headers,
-            json=payload,
         )
         if res.status != 200:
             raise Exception(f'Failed to request "GET {url}". status: {res.status}') from None
