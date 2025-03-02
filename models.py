@@ -120,3 +120,19 @@ class SwitchBotDevice:
     @property
     def is_curtain(self):
         return self.device_type in ("Curtain", "Curtain3")
+
+
+@dataclass(frozen=True)
+class CloudFormationParameter:
+    key: str
+    value: str | None
+    use_previous_value: bool | None = field(default=None)
+
+    def to_dict(self) -> dict[str, str]:
+        result = {"ParameterKey": self.key}
+        if self.value is not None:
+            result["ParameterValue"] = self.value
+        if self.use_previous_value is not None:
+            result["UsePreviousValue"] = self.use_previous_value
+
+        return result
