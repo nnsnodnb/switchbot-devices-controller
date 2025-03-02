@@ -1,5 +1,7 @@
 # switchbot-devices-controller
 
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+
 ## Setup
 
 ```shell
@@ -17,6 +19,7 @@ $ uv sync
 
 ### Environment variables
 
+- `AWS_PROFILE` (Local only)
 - `LATITUDE`
 - `LONGITUDE`
 - `CFN_STACK_NAME`
@@ -33,5 +36,7 @@ $ cd /path/to/switchbot-devices-controller
 $ source .venv/bin/activate
 $ python close_curtain.py
 ```
+
+Then, the stack will be deployed to CloudFormation.
 
 </details>
