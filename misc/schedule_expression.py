@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from .timezone import UTC
+from misc.timezone import UTC
 
 
 def datetime_to_events_rule_schedule_expression(date: datetime) -> str:

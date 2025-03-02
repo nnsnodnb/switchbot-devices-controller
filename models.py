@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Self
 
-from curtain.timezone import ASIA_TOKYO
+from misc.timezone import ASIA_TOKYO
 
 
 @dataclass

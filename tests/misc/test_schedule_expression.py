@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from curtain.schedule_expression import datetime_to_events_rule_schedule_expression
-from curtain.timezone import ASIA_TOKYO
+from misc.schedule_expression import datetime_to_events_rule_schedule_expression
+from misc.timezone import ASIA_TOKYO
 
 
 class TestDatetimeToEventsRuleScheduleExpression:

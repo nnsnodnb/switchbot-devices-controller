@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any
 
-from curtain.timezone import ASIA_TOKYO
+from misc.timezone import ASIA_TOKYO
 from models import SunMoonRiseSet
 
 
