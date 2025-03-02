@@ -4,14 +4,25 @@ from pathlib import Path
 
 from api.bitmeister import get_sun_moon_rise_set
 from api.switchbot import SwitchBot
+from aws.cloudformation import deploy_stack
 from aws.s3 import AlreadyExistObjectError, upload_source_code, upload_template
+from curtain.schedule_expression import datetime_to_events_rule_schedule_expression
 from curtain.timezone import ASIA_TOKYO
 from misc.zipper import zip_folder
+from models import CloudFormationParameter, SunMoonRiseSet
 
+BASE_DIR = Path(__file__).parent
+# Required environment variables
+CFN_STACK_NAME = os.environ.get("CFN_STACK_NAME", "CloseCurtainStack")
 S3_BUCKET_NAME = os.environ["S3_BUCKET_NAME"]
+SWITCHBOT_API_TOKEN = os.environ["SWITCHBOT_API_TOKEN"]
+SWITCHBOT_API_CLIENT_SECRET = os.environ["SWITCHBOT_API_CLIENT_SECRET"]
+# Optional environment variables
+IS_CREATE_LOG_GROUP = os.environ.get("IS_CREATE_LOG_GROUP", "true")
+USE_LOCALSTACK = os.environ.get("USE_LOCALSTACK", "false").lower() == "true"
 
 
-def main() -> None:
+def _get_sun_moon_rise_set() -> SunMoonRiseSet:
     # default location is Tokyo station
     latitude = float(os.getenv("LATITUDE", "35.68137636985265"))
     longitude = float(os.getenv("LONGITUDE", "139.76703435645047"))
@@ -19,37 +30,104 @@ def main() -> None:
     now = datetime.now(tz=ASIA_TOKYO)
     sun_moon_rise_set = get_sun_moon_rise_set(date=now, latitude=latitude, longitude=longitude)
 
-    base_dir = Path(__file__).parent
+    return sun_moon_rise_set
 
-    # Upload source to S3 bucket
-    archive_path = zip_folder(src=base_dir, dest=base_dir / "dist").absolute()
+
+def _zipped_folder_and_upload_to_s3() -> (str, bool):
+    archive_path = zip_folder(src=BASE_DIR, dest=BASE_DIR / "dist").absolute()
     try:
-        source_code_s3_key = upload_source_code(source_code_path=archive_path, bucket_name=S3_BUCKET_NAME)
+        s3_key = upload_source_code(source_code_path=archive_path, bucket_name=S3_BUCKET_NAME)
+        print("Source code archive uploaded to S3 bucket.")
+        return s3_key, True
     except AlreadyExistObjectError as e:
         print(e)
-        source_code_s3_key = e.s3_key
-    print(f"{source_code_s3_key=}")
-    # Upload template to S3 bucket
+        return e.s3_key, False
+
+
+def _upload_template_to_s3() -> (str, bool):
     template_path = Path(__file__).parent / "cloudformation" / "close_curtain.yml"
     try:
-        template_s3_key = upload_template(template_path=template_path, bucket_name=S3_BUCKET_NAME)
+        s3_key = upload_template(template_path=template_path, bucket_name=S3_BUCKET_NAME)
+        print("CloudFormation template uploaded to S3 bucket.")
+        return s3_key, True
     except AlreadyExistObjectError as e:
         print(e)
-        template_s3_key = e.s3_key
-    print(f"{template_s3_key=}")
-    # 5. Exist check stack of CloudFormation
-    # 6. Create CloudFormationStack if not exist and update if exist
+        return e.s3_key, False
+
+
+def _create_close_curtain_stack(source_code_s3_key: str, template_s3_key: str) -> str:
+    sun_moon_rise_set = _get_sun_moon_rise_set()
+    schedule_expression = datetime_to_events_rule_schedule_expression(
+        date=sun_moon_rise_set.rise_and_set.sunset_datetime
+    )
+
+    cfn_params = [
+        CloudFormationParameter(
+            key="IsCreateLogGroup",
+            value=IS_CREATE_LOG_GROUP,
+        ),
+        CloudFormationParameter(
+            key="SwitchBotApiToken",
+            value=SWITCHBOT_API_TOKEN,
+        ),
+        CloudFormationParameter(
+            key="SwitchBotApiClientSecret",
+            value=SWITCHBOT_API_CLIENT_SECRET,
+        ),
+        CloudFormationParameter(
+            key="CloseCurtainFunctionS3BucketName",
+            value=S3_BUCKET_NAME,
+        ),
+        CloudFormationParameter(
+            key="CloseCurtainFunctionZipFileS3Key",
+            value=source_code_s3_key,
+        ),
+        CloudFormationParameter(
+            key="CloseCurtainEventScheduleExpression",
+            value=schedule_expression,
+        ),
+    ]
+
+    stack_id = deploy_stack(
+        stack_name=CFN_STACK_NAME,
+        template_s3_key=template_s3_key,
+        parameters=cfn_params,
+        bucket_name=S3_BUCKET_NAME,
+        wait_complete=True,
+        use_localstack=USE_LOCALSTACK,
+    )
+
+    return stack_id
+
+
+def main() -> None:
+    # Upload source to S3 bucket
+    source_code_s3_key, code_uploaded = _zipped_folder_and_upload_to_s3()
+    # Upload template to S3 bucket
+    template_s3_key, template_uploaded = _upload_template_to_s3()
+    # Deploy CloudFormation Stack
+    if not code_uploaded and not template_uploaded:
+        print("No need to deploy.")
+        return
+
+    stack_id = _create_close_curtain_stack(
+        source_code_s3_key=source_code_s3_key,
+        template_s3_key=template_s3_key,
+    )
+
+    print(f"Deployed Stack ID: {stack_id}")
 
 
 def lambda_handler(event, context) -> None:
-    token = os.environ["SWITCHBOT_API_TOKEN"]
-    client_secret = os.environ["SWITCHBOT_API_CLIENT_SECRET"]
+    switch_bot = SwitchBot(
+        token=SWITCHBOT_API_TOKEN,
+        client_secret=SWITCHBOT_API_CLIENT_SECRET,
+    )
+    devices = filter(lambda d: d.is_curtain, switch_bot.get_devices())
 
-    switch_bot = SwitchBot(token=token, client_secret=client_secret)
-    devices = filter(lambda device: device.is_curtain, switch_bot.get_devices())
-    print(list(devices))
+    for device in devices:
+        switch_bot.close_curtain(device=device)
 
 
 if __name__ == "__main__":
     main()
-    # lambda_handler(None, None)
