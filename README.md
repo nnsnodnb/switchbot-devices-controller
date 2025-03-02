@@ -17,19 +17,21 @@ $ uv sync
 
 ### Environment variables
 
-- LATITUDE
-- LONGITUDE
-- S3_BUCKET_NAME
-- SWITCHBOT_API_TOKEN
-- SWITCHBOT_API_CLIENT_SECRET
+- `LATITUDE`
+- `LONGITUDE`
+- `CFN_STACK_NAME`
+- `S3_BUCKET_NAME`
+- `SWITCHBOT_API_TOKEN`
+- `SWITCHBOT_API_CLIENT_SECRET`
+- `IS_CREATE_LOG_GROUP` (Optional) (true or false, default: true)
+- `USE_LOCALSTACK` (Optional) (true or false, default: false)
 
 ## Run
 
 ```shell
 $ cd /path/to/switchbot-devices-controller
 $ source .venv/bin/activate
-$ cd curtain
-$ python main.py
+$ python close_curtain.py
 ```
 
 </details>
