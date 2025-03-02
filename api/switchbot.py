@@ -1,12 +1,13 @@
 import base64
 import hashlib
 import hmac
+import json
 import time
 import uuid
 from dataclasses import dataclass, field
 from typing import Any
 
-import requests
+import urllib3
 
 from models import SwitchBotDevice
 
@@ -49,10 +50,16 @@ class SwitchBot:
         url = self._make_endpoint_url("devices")
         headers = self._get_headers()
 
-        res = requests.get(url=url, headers=headers)
-        res.raise_for_status()
+        http = urllib3.PoolManager()
+        res = http.request(
+            method="GET",
+            url=url,
+            headers=headers,
+        )
+        if res.status != 200:
+            raise Exception(f'Failed to request "GET {url}". status: {res.status}') from None
 
-        data = res.json()
+        data = json.loads(res.data.decode())
 
         return [SwitchBotDevice.from_dict(device) for device in data["body"]["deviceList"]]
 
@@ -68,7 +75,16 @@ class SwitchBot:
         }
         headers = self._get_headers()
 
-        res = requests.post(url=url, json=payload, headers=headers)
-        res.raise_for_status()
+        http = urllib3.PoolManager()
+        res = http.request(
+            method="POST",
+            url=url,
+            headers=headers,
+            json=payload,
+        )
+        if res.status != 200:
+            raise Exception(f'Failed to request "GET {url}". status: {res.status}') from None
 
-        return res.json()
+        data = json.loads(res.data.decode())
+
+        return data

@@ -1,6 +1,7 @@
+import json
 from datetime import datetime
 
-import requests
+import urllib3
 
 from models import SunMoonRiseSet
 
@@ -22,9 +23,17 @@ def get_sun_moon_rise_set(date: datetime, latitude: float, longitude: float) -> 
         "Accept": "application/json",
     }
 
-    res = requests.get(url=url, params=params, headers=headers)
-    res.raise_for_status()
+    http = urllib3.PoolManager()
+    res = http.request(
+        method="GET",
+        url=url,
+        fields=params,
+        headers=headers,
+    )
 
-    data = res.json()
+    if res.status != 200:
+        raise Exception(f'Failed to request to "GET {url}": {res.status}')
+
+    data = json.loads(res.data.decode())
 
     return SunMoonRiseSet.from_dict(data=data, now=date)
