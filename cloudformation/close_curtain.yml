@@ -17,6 +17,9 @@ Parameters:
     Type: String
     Description: The client secret of SwitchBot API.
     NoEcho: 'true'
+  CloseCurtainFunctionS3BucketName:
+    Type: String
+    Description: The S3 bucket name of using for CloseCurtainFunction.
   CloseCurtainFunctionZipFileS3Key:
     Type: String
     Description: The S3 key of the ZIP file of using for CloseCurtainFunction.
@@ -28,28 +31,13 @@ Conditions:
   IsCreateLogGroup: !Equals [!Ref 'IsCreateLogGroup', 'true']
 
 Resources:
-  CloseCurtainResourceBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-        - BucketKeyEnabled: 'true'
-          ServerSideEncryptionByDefault:
-            SSEAlgorithm: AES256
-      BucketName: !Sub 'switchbot-close-curtain-resource-${AWS::Region}'
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: 'true'
-        BlockPublicPolicy: 'true'
-        IgnorePublicAcls: 'true'
-        RestrictPublicBuckets: 'true'
-
   CloseCurtainFunction:
     Type: AWS::Lambda::Function
     Properties:
       Architectures:
       - arm64
       Code:
-        S3Bucket: !Ref 'CloseCurtainResourceBucket'
+        S3Bucket: !Ref 'CloseCurtainFunctionS3BucketName'
         S3Key: !Ref 'CloseCurtainFunctionZipFileS3Key'
       Environment:
         Variables:
