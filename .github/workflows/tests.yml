@@ -1,0 +1,30 @@
+name: Test
+
+on:
+  push:
+    branches:
+    - main
+  pull_request: {}
+
+jobs:
+  tests:
+    runs-on: ubuntu-24.04
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.13"
+
+    - name: Install required-version defined in pyproject.toml
+      uses: astral-sh/setup-uv@v5
+      with:
+        pyproject-file: "pyproject.toml"
+        python-version: "3.13.2"
+        enable-cache: "true"
+
+    - name: Run pytest
+      run: uv run pytest .
