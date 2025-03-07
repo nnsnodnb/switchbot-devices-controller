@@ -3,15 +3,15 @@ from datetime import datetime
 
 import urllib3
 
-from models import SunMoonRiseSet
+from models import SunRiseSet
 
 BASE_URL = "https://labs.bitmeister.jp"
 
 
-def get_sun_moon_rise_set(date: datetime, latitude: float, longitude: float) -> SunMoonRiseSet:
+def get_sun_rise_set(date: datetime, latitude: float, longitude: float) -> SunRiseSet:
     url = f"{BASE_URL}/ohakon/json"
     params = {
-        "mode": "sun_moon_rise_set",
+        "mode": "sun_rise_set",
         "year": date.year,
         "month": date.month,
         "day": date.day,
@@ -38,4 +38,4 @@ def get_sun_moon_rise_set(date: datetime, latitude: float, longitude: float) -> 
     print(url)
     print(data)
 
-    return SunMoonRiseSet.from_dict(data=data, now=date)
+    return SunRiseSet.from_dict(data=data, now=date)

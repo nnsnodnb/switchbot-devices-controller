@@ -2,14 +2,14 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-from api.bitmeister import get_sun_moon_rise_set
+from api.bitmeister import get_sun_rise_set
 from api.switchbot import SwitchBot
 from aws.cloudformation import deploy_stack
 from aws.s3 import AlreadyExistObjectError, upload_source_code, upload_template
 from misc.schedule_expression import datetime_to_events_rule_schedule_expression
 from misc.timezone import ASIA_TOKYO
 from misc.zipper import zip_folder
-from models import CloudFormationParameter, SunMoonRiseSet
+from models import CloudFormationParameter, SunRiseSet
 
 BASE_DIR = Path(__file__).parent
 # Required environment variables
@@ -22,13 +22,13 @@ IS_CREATE_LOG_GROUP = os.environ.get("IS_CREATE_LOG_GROUP", "true")
 USE_LOCALSTACK = os.environ.get("USE_LOCALSTACK", "false").lower() == "true"
 
 
-def _get_sun_moon_rise_set() -> SunMoonRiseSet:
+def _get_sun_moon_rise_set() -> SunRiseSet:
     # default location is Tokyo station
     latitude = float(os.getenv("LATITUDE", "35.68137636985265"))
     longitude = float(os.getenv("LONGITUDE", "139.76703435645047"))
 
     now = datetime.now(tz=ASIA_TOKYO)
-    sun_moon_rise_set = get_sun_moon_rise_set(date=now, latitude=latitude, longitude=longitude)
+    sun_moon_rise_set = get_sun_rise_set(date=now, latitude=latitude, longitude=longitude)
 
     return sun_moon_rise_set
 

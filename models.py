@@ -36,12 +36,6 @@ class Location:
 
 @dataclass(frozen=True)
 class RiseAndSet:
-    moonrise: float
-    moonrise_hm: str
-    moonrise_datetime: datetime = field(repr=False)
-    moonset: float
-    moonset_hm: str
-    moonset_datetime: datetime = field(repr=False)
     sunrise: float
     sunrise_hm: str
     sunrise_datetime: datetime = field(repr=False)
@@ -52,12 +46,8 @@ class RiseAndSet:
     @classmethod
     def from_dict(cls, data: dict[str, Any], now: datetime) -> Self:
         format_ = "%H:%M"
-        moonrise_time = datetime.strptime(data["moonrise_hm"], format_).time()
-        moonset_time = datetime.strptime(data["moonset_hm"], format_).time()
         sunrise_time = datetime.strptime(data["sunrise_hm"], format_).time()
         sunset_time = datetime.strptime(data["sunset_hm"], format_).time()
-        data["moonrise_datetime"] = datetime.combine(now.date(), moonrise_time, tzinfo=ASIA_TOKYO)
-        data["moonset_datetime"] = datetime.combine(now.date(), moonset_time, tzinfo=ASIA_TOKYO)
         data["sunrise_datetime"] = datetime.combine(now.date(), sunrise_time, tzinfo=ASIA_TOKYO)
         data["sunset_datetime"] = datetime.combine(now.date(), sunset_time, tzinfo=ASIA_TOKYO)
 
@@ -65,10 +55,9 @@ class RiseAndSet:
 
 
 @dataclass(frozen=True)
-class SunMoonRiseSet:
+class SunRiseSet:
     date: Date
     location: Location
-    moon_age: float
     rise_and_set: RiseAndSet
     version: str
 
@@ -76,14 +65,12 @@ class SunMoonRiseSet:
     def from_dict(cls, data: dict[str, Any], now: datetime) -> Self:
         date = Date(**data["date"])
         location = Location(coordinate=Coordinate(**data["location"]["coordinate"]))
-        moon_age = float(data["moon_age"])
         rise_and_set = RiseAndSet.from_dict(data=data["rise_and_set"], now=now)
         version = data["version"]
 
         return cls(
             date=date,
             location=location,
-            moon_age=moon_age,
             rise_and_set=rise_and_set,
             version=version,
         )
