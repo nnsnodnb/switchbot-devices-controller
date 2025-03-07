@@ -35,7 +35,5 @@ def get_sun_rise_set(date: datetime, latitude: float, longitude: float) -> SunRi
         raise Exception(f'Failed to request to "GET {url}": {res.status}')
 
     data = json.loads(res.data.decode())
-    print(url)
-    print(data)
 
     return SunRiseSet.from_dict(data=data, now=date)
