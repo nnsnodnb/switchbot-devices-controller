@@ -2,8 +2,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-from api.bitmeister import get_sun_rise_set
-from api.switchbot import SwitchBot
+from api import SwitchBot, get_sun_rise_set
 from aws.cloudformation import deploy_stack
 from aws.s3 import AlreadyExistObjectError, upload_source_code, upload_template
 from misc.schedule_expression import datetime_to_events_rule_schedule_expression
