@@ -1,9 +1,8 @@
 name: Deploy
 
 on:
-  push:
-    branches:
-    - main
+  schedule:
+  - cron: "15 17 * * *" # 02:15 JST
 
 jobs:
   deploy:
@@ -44,4 +43,5 @@ jobs:
         SWITCHBOT_API_CLIENT_SECRET: ${{ secrets.SWITCHBOT_API_CLIENT_SECRET }}
         IS_CREATE_LOG_GROUP: ${{ secrets.IS_CREATE_LOG_GROUP }}
         USE_LOCALSTACK: "false"
+        TZ: Asia/Tokyo
       run: uv run close_curtain.py
