@@ -9,6 +9,7 @@ IGNORE_PATHS = [
     "__pycache__",
     ".venv",
     ".git",
+    ".github",
     "cloudformation",
     ".idea",
     ".env",
