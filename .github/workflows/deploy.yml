@@ -35,6 +35,7 @@ jobs:
 
     - name: Deploy
       env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         LATITUDE: ${{ secrets.LATITUDE }}
         LONGITUDE: ${{ secrets.LONGITUDE }}
         CFN_STACK_NAME: ${{ secrets.CFN_STACK_NAME }}
