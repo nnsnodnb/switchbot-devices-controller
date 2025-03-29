@@ -24,6 +24,7 @@ $ uv sync
 - `LONGITUDE`
 - `CFN_STACK_NAME`
 - `S3_BUCKET_NAME`
+- `GITHUB_TOKEN`
 - `SWITCHBOT_API_TOKEN`
 - `SWITCHBOT_API_CLIENT_SECRET`
 - `IS_CREATE_LOG_GROUP` (Optional) (true or false, default: true)

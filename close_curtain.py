@@ -14,6 +14,7 @@ BASE_DIR = Path(__file__).parent
 # Required environment variables
 CFN_STACK_NAME = ""
 S3_BUCKET_NAME = ""
+GITHUB_TOKEN = ""
 SWITCHBOT_API_TOKEN = os.environ["SWITCHBOT_API_TOKEN"]
 SWITCHBOT_API_CLIENT_SECRET = os.environ["SWITCHBOT_API_CLIENT_SECRET"]
 # Optional environment variables
@@ -35,7 +36,13 @@ def _get_sun_moon_rise_set() -> SunRiseSet:
 def _zipped_folder_and_upload_to_s3() -> str:
     archive_path = zip_folder(src=BASE_DIR, dest=BASE_DIR / "dist").absolute()
     try:
-        s3_key = upload_source_code(source_code_path=archive_path, bucket_name=S3_BUCKET_NAME)
+        s3_key = upload_source_code(
+            source_code_path=archive_path,
+            bucket_name=S3_BUCKET_NAME,
+            token=GITHUB_TOKEN,
+            repo="nnsnodnb/switchbot-devices-controller",
+            branch="main",
+        )
         print("Source code archive uploaded to S3 bucket.")
         return s3_key
     except AlreadyExistObjectError as e:
@@ -101,9 +108,10 @@ def _create_close_curtain_stack(source_code_s3_key: str, template_s3_key: str) -
 
 
 def main() -> None:
-    global CFN_STACK_NAME, S3_BUCKET_NAME
+    global CFN_STACK_NAME, S3_BUCKET_NAME, GITHUB_TOKEN
     CFN_STACK_NAME = os.environ.get("CFN_STACK_NAME", "CloseCurtainStack")
     S3_BUCKET_NAME = os.environ["S3_BUCKET_NAME"]
+    GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
 
     # Upload source to S3 bucket
     source_code_s3_key = _zipped_folder_and_upload_to_s3()
