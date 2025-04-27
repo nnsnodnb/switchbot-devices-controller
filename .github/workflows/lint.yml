@@ -19,7 +19,7 @@ jobs:
           python-version: "3.13.3"
 
       - name: ruff
-        uses: astral-sh/ruff-action@9828f49eb4cadf267b40eaa330295c412c68c1f9 # v3.2.2
+        uses: astral-sh/ruff-action@c6bea5606c33b5d04902374392d9233464b90660 # v3.3.0
 
   actionlint:
     runs-on: ubuntu-24.04
