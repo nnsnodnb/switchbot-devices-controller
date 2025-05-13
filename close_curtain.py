@@ -65,7 +65,7 @@ def _create_close_curtain_stack(source_code_s3_key: str, template_s3_key: str) -
     sun_moon_rise_set = _get_sun_moon_rise_set()
     schedule_expression = datetime_to_events_rule_schedule_expression(
         date=sun_moon_rise_set.rise_and_set.sunset_datetime,
-        offset_minutes=10,
+        offset_minutes=5,
     )
 
     cfn_params = [
