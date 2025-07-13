@@ -95,7 +95,7 @@ class SwitchBotDevice:
             device_id=data["deviceId"],
             device_name=data["deviceName"],
             device_type=data["deviceType"],
-            enable_cloud_service=data["enableCloudService"],
+            enable_cloud_service=data.get("enableCloudService", False),
             hub_device_id=data["hubDeviceId"],
             curtain_devices_ids=data.get("curtainDevicesIds"),
             calibrate=data.get("calibrate"),
