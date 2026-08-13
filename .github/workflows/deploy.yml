@@ -19,7 +19,7 @@ jobs:
     - name: Setup Python
       uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
       with:
-        python-version: "3.14.3"
+        python-version: "3.14.7"
 
     - name: Install required-version defined in pyproject.toml
       uses: astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0.0
